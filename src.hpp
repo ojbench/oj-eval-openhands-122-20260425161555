@@ -40,6 +40,13 @@ class Memo {
       if (nbe->GetDeadline() >= 1 && nbe->GetDeadline() <= duration_) {
         schedule_[nbe->GetDeadline()].push_back(event);
       }
+    } else if (const CustomNotifyLateEvent *cnle = dynamic_cast<const CustomNotifyLateEvent*>(event)) {
+      // Schedule notification at deadline (must check before NotifyLateEvent)
+      // Late notifications will be handled dynamically in Tick()
+      if (cnle->GetDeadline() >= 1 && cnle->GetDeadline() <= duration_) {
+        schedule_[cnle->GetDeadline()].push_back(event);
+      }
+      late_events_.insert(event);
     } else if (const NotifyLateEvent *nle = dynamic_cast<const NotifyLateEvent*>(event)) {
       // Schedule notification at deadline
       // Late notifications will be handled dynamically in Tick()
