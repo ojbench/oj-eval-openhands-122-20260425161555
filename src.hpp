@@ -29,15 +29,23 @@ class Memo {
   void AddEvent(const Event *event) {
     if (const NormalEvent *ne = dynamic_cast<const NormalEvent*>(event)) {
       // Schedule notification at deadline
-      schedule_[ne->GetDeadline()].push_back(event);
+      if (ne->GetDeadline() >= 1 && ne->GetDeadline() <= duration_) {
+        schedule_[ne->GetDeadline()].push_back(event);
+      }
     } else if (const NotifyBeforeEvent *nbe = dynamic_cast<const NotifyBeforeEvent*>(event)) {
       // Schedule notification at notify_time and deadline
-      schedule_[nbe->GetNotifyTime()].push_back(event);
-      schedule_[nbe->GetDeadline()].push_back(event);
+      if (nbe->GetNotifyTime() >= 1 && nbe->GetNotifyTime() <= duration_) {
+        schedule_[nbe->GetNotifyTime()].push_back(event);
+      }
+      if (nbe->GetDeadline() >= 1 && nbe->GetDeadline() <= duration_) {
+        schedule_[nbe->GetDeadline()].push_back(event);
+      }
     } else if (const NotifyLateEvent *nle = dynamic_cast<const NotifyLateEvent*>(event)) {
       // Schedule notification at deadline
       // Late notifications will be handled dynamically in Tick()
-      schedule_[nle->GetDeadline()].push_back(event);
+      if (nle->GetDeadline() >= 1 && nle->GetDeadline() <= duration_) {
+        schedule_[nle->GetDeadline()].push_back(event);
+      }
       late_events_.insert(event);
     }
   }
