@@ -66,7 +66,7 @@ class Memo {
         if (const NormalEvent *ne = dynamic_cast<const NormalEvent*>(event)) {
           std::cout << ne->GetNotification(0) << std::endl;
         } else if (const NotifyBeforeEvent *nbe = dynamic_cast<const NotifyBeforeEvent*>(event)) {
-          if (current_time_ == nbe->GetNotifyTime()) {
+          if (current_time_ == nbe->GetNotifyTime() && current_time_ != nbe->GetDeadline()) {
             std::cout << nbe->GetNotification(0) << std::endl;
           } else if (current_time_ == nbe->GetDeadline()) {
             std::cout << nbe->GetNotification(1) << std::endl;
