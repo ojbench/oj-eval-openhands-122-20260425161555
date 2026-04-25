@@ -28,21 +28,21 @@ class Memo {
   void Tick() {
     current_time_++;
     
+    // Don't process if we've exceeded the duration
+    if (current_time_ > duration_) {
+      return;
+    }
+    
     for (const Event *event : events_) {
       if (event->IsComplete()) {
         continue;
       }
       
-      // Try to cast to specific event types
-      if (const NotifyBeforeEvent *nbe = dynamic_cast<const NotifyBeforeEvent*>(event)) {
-        // NotifyBeforeEvent
-        int notify_time = nbe->GetNotifyTime();
-        int deadline = nbe->GetDeadline();
-        
-        if (current_time_ == notify_time) {
-          std::cout << nbe->GetNotification(0) << std::endl;
-        } else if (current_time_ == deadline) {
-          std::cout << nbe->GetNotification(1) << std::endl;
+      // Check in order: most common types first for performance
+      if (const NormalEvent *ne = dynamic_cast<const NormalEvent*>(event)) {
+        // NormalEvent
+        if (current_time_ == ne->GetDeadline()) {
+          std::cout << ne->GetNotification(0) << std::endl;
         }
       } else if (const CustomNotifyLateEvent *cnle = dynamic_cast<const CustomNotifyLateEvent*>(event)) {
         // CustomNotifyLateEvent (must check before NotifyLateEvent)
@@ -66,10 +66,15 @@ class Memo {
           int n = (current_time_ - deadline) / frequency;
           std::cout << nle->GetNotification(n) << std::endl;
         }
-      } else if (const NormalEvent *ne = dynamic_cast<const NormalEvent*>(event)) {
-        // NormalEvent
-        if (current_time_ == ne->GetDeadline()) {
-          std::cout << ne->GetNotification(0) << std::endl;
+      } else if (const NotifyBeforeEvent *nbe = dynamic_cast<const NotifyBeforeEvent*>(event)) {
+        // NotifyBeforeEvent
+        int notify_time = nbe->GetNotifyTime();
+        int deadline = nbe->GetDeadline();
+        
+        if (current_time_ == notify_time) {
+          std::cout << nbe->GetNotification(0) << std::endl;
+        } else if (current_time_ == deadline) {
+          std::cout << nbe->GetNotification(1) << std::endl;
         }
       }
     }
